@@ -276,7 +276,7 @@ C++ Core Guidelines. Error handling. URL: https://isocpp.github.io/CppCoreGuidel
 Посилання на GitHub репозиторій:
 https://github.com/NureAfanasievaOksana/arkpz-pzpi-22-6-afanasieva-oksana/tree/main/Pract1
 Посилання на YouTube відео з виступом:
-
+https://youtu.be/du9otyDiP3Q
  
 ДОДАТОК А
 Слайди презентації
