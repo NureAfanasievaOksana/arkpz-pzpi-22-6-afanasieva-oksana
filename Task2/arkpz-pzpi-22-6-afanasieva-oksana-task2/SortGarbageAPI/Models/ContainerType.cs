@@ -1,4 +1,4 @@
-namespace SortGarbage.Models
+namespace SortGarbageAPI.Models
 {
     public enum ContainerType
     {

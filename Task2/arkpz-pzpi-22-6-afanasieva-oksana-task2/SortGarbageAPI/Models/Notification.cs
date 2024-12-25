@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace SortGarbage.Models
+namespace SortGarbageAPI.Models
 {
     public class Notification
     {
@@ -19,12 +19,12 @@ namespace SortGarbage.Models
         public int UserId { get; set; }
 
         [JsonIgnore]
-        public User User { get; set; }
+        public User? User { get; set; }
 
         [ForeignKey("SensorData")]
-        public int SensorDataId { get; set; }
+        public int? SensorDataId { get; set; }
 
         [JsonIgnore]
-        public SensorData SensorData { get; set; }
+        public SensorData? SensorData { get; set; }
     }
 }

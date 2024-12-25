@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace SortGarbage.Models
+namespace SortGarbageAPI.Models
 {
     public class SensorData
     {
@@ -19,6 +19,6 @@ namespace SortGarbage.Models
         public int SensorId { get; set; }
 
         [JsonIgnore]
-        public Sensor Sensor { get; set; }
+        public Sensor? Sensor { get; set; }
     }
 }
