@@ -1,13 +1,17 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
 namespace SortGarbageAPI.Models
 {
-    using System.ComponentModel.DataAnnotations;
-
-    /// <summary>
-    /// Defines the <see cref="User" />
-    /// </summary>
     public class User
     {
-        #region Properties
+        [Key]
+        public int UserId { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string Username { get; set; }
 
         [StringLength(100)]
         public string? Address { get; set; }
@@ -23,14 +27,5 @@ namespace SortGarbageAPI.Models
 
         [Required]
         public UserRole Role { get; set; }
-
-        [Key]
-        public int UserId { get; set; }
-
-        [Required]
-        [StringLength(100)]
-        public string Username { get; set; }
-
-        #endregion
     }
 }
