@@ -4,17 +4,28 @@ using SortGarbageAPI.Services;
 
 namespace SortGarbageAPI.Controllers
 {
+    /// <summary>
+    /// Controller responsible for managing user-related operations
+    /// </summary>
     [ApiController]
     [Route("/users")]
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
 
+        /// <summary>
+        /// Initializes a new instance of the UserController class
+        /// </summary>
+        /// <param name="userService">The service for managing user operations</param>
         public UserController(UserService userService)
         {
             _userService = userService;
         }
 
+        /// <summary>
+        /// Retrieves all users from the system
+        /// </summary>
+        /// <returns>A collection of all users</returns>
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
@@ -22,6 +33,11 @@ namespace SortGarbageAPI.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Creates a new user in the system
+        /// </summary>
+        /// <param name="user">The user data to create</param>
+        /// <returns>The created user data</returns>
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
@@ -34,6 +50,11 @@ namespace SortGarbageAPI.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = createdUser.UserId }, createdUser);
         }
 
+        /// <summary>
+        /// Retrieves a specific user by their id
+        /// </summary>
+        /// <param name="id">The id of the user to retrieve</param>
+        /// <returns>The requested user data</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -45,22 +66,31 @@ namespace SortGarbageAPI.Controllers
             return Ok(user);
         }
 
+        /// <summary>
+        /// Updates an existing user's information
+        /// </summary>
+        /// <param name="id">The id of the user to update</param>
+        /// <param name="updatedData">The updated user data</param>
+        /// <returns>A success message if the update was successful</returns>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedData)
         {
-            var success = await _userService.UpdateUserAsync(id, updatedData);
-            if (!success)
+            if (!await _userService.UpdateUserAsync(id, updatedData))
             {
                 return NotFound();
             }
             return Ok("User data updated successfully");
         }
 
+        /// <summary>
+        /// Deletes a user from the system
+        /// </summary>
+        /// <param name="id">The id of the user to delete</param>
+        /// <returns>A success message if the deletion was successful</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var success = await _userService.DeleteUserAsync(id);
-            if (!success)
+            if (!await _userService.DeleteUserAsync(id))
             {
                 return NotFound();
             }
