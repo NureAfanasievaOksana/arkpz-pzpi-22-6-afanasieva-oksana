@@ -1,30 +1,37 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-
 namespace SortGarbageAPI.Models
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Text.Json.Serialization;
+
+    /// <summary>
+    /// Defines the <see cref="Notification" />
+    /// </summary>
     public class Notification
     {
-        [Key]
-        public int NotificationId { get; set; }
+        #region Properties
 
         [Required]
         public string Message { get; set; }
 
-        [Required]
-        public DateTime Timestamp { get; set; }
-
-        [ForeignKey("User")]
-        public int UserId { get; set; }
+        [Key]
+        public int NotificationId { get; set; }
 
         [JsonIgnore]
-        public User? User { get; set; }
+        public SensorData? SensorData { get; set; }
 
         [ForeignKey("SensorData")]
         public int? SensorDataId { get; set; }
 
+        [Required]
+        public DateTime Timestamp { get; set; }
+
         [JsonIgnore]
-        public SensorData? SensorData { get; set; }
+        public User? User { get; set; }
+
+        [ForeignKey("User")]
+        public int UserId { get; set; }
+
+        #endregion
     }
 }

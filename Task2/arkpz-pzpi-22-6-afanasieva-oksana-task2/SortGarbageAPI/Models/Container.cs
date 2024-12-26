@@ -1,28 +1,35 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
-
 namespace SortGarbageAPI.Models
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Text.Json.Serialization;
+
+    /// <summary>
+    /// Defines the <see cref="Container" />
+    /// </summary>
     public class Container
     {
-        [Key]
-        public int ContainerId { get; set; }
+        #region Properties
 
         [Required]
         [StringLength(100)]
         public string Address { get; set; }
 
-        [Required]
-        public ContainerType Type { get; set; }
+        [Key]
+        public int ContainerId { get; set; }
 
         [Required]
         public float MaxSize { get; set; }
 
-        [ForeignKey("User")]
-        public int? UserId { get; set; }
+        [Required]
+        public ContainerType Type { get; set; }
 
         [JsonIgnore]
         public User? User { get; set; }
+
+        [ForeignKey("User")]
+        public int? UserId { get; set; }
+
+        #endregion
     }
 }

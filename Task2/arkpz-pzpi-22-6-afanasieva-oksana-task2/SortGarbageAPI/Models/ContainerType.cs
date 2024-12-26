@@ -1,5 +1,7 @@
 namespace SortGarbageAPI.Models
 {
+    #region Enums
+
     public enum ContainerType
     {
         Plastic = 1,
@@ -9,4 +11,6 @@ namespace SortGarbageAPI.Models
         Metal = 5,
         Organic = 6
     }
+
+    #endregion
 }

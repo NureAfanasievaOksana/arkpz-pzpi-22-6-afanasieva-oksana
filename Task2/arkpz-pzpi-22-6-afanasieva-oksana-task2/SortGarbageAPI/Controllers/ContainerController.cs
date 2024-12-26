@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SortGarbageAPI.Models;
+using SortGarbageAPI.Services;
 
 namespace SortGarbageAPI.Controllers
 {
@@ -8,33 +8,31 @@ namespace SortGarbageAPI.Controllers
     [Route("/containers")]
     public class ContainerController : ControllerBase
     {
-        private readonly SortGarbageDbContext _dbContext;
+        private readonly ContainerService _containerService;
 
-        public ContainerController(SortGarbageDbContext dbContext)
+        public ContainerController(ContainerService containerService)
         {
-            _dbContext = dbContext;
+            _containerService = containerService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetContainers()
         {
-            var containers = await _dbContext.Containers.ToListAsync();
+            var containers = await _containerService.GetAllContainersAsync();
             return Ok(containers);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateContainer([FromBody] Container container)
         {
-            _dbContext.Containers.Add(container);
-            await _dbContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetContainerById), new { id = container.ContainerId }, container);
+            var createdContainer = await _containerService.CreateContainerAsync(container);
+            return CreatedAtAction(nameof(GetContainerById), new { id = createdContainer.ContainerId }, createdContainer);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetContainerById(int id)
         {
-            var container = await _dbContext.Containers.FindAsync(id);
+            var container = await _containerService.GetContainerByIdAsync(id);
             if (container == null)
             {
                 return NotFound();
@@ -45,50 +43,23 @@ namespace SortGarbageAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateContainer(int id, [FromBody] Container updatedData)
         {
-            var container = await _dbContext.Containers.FindAsync(id);
-            if (container == null)
+            var success = await _containerService.UpdateContainerAsync(id, updatedData);
+            if (!success)
             {
                 return NotFound();
             }
-
-            container.Address = updatedData.Address;
-            container.Type = updatedData.Type;
-            container.MaxSize = updatedData.MaxSize;
-            _dbContext.Containers.Update(container);
-            await _dbContext.SaveChangesAsync();
             return Ok("Container data updated successfully");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteContainer(int id)
         {
-            var container = await _dbContext.Containers.FindAsync(id);
-            if (container == null)
+            var success = await _containerService.DeleteContainerAsync(id);
+            if (!success)
             {
                 return NotFound();
             }
-
-            _dbContext.Containers.Remove(container);
-            await _dbContext.SaveChangesAsync();
             return Ok("Container data deleted successfully");
-        }
-
-        [HttpGet("type/{type}")]
-        public async Task<IActionResult> GetContainersByType(string type)
-        {
-            if(!Enum.TryParse<ContainerType>(type, true, out var containerType))
-            {
-                return BadRequest("Invalid container type");
-            }
-            var containers = await _dbContext.Containers.Where(c => c.Type == containerType).ToListAsync();
-            return Ok(containers);
-        }
-
-        [HttpGet("address/{address}")]
-        public async Task<IActionResult> GetContainersByAddress(string address)
-        {
-            var containers = await _dbContext.Containers.Where(c => c.Address.Contains(address)).ToListAsync();
-            return Ok(containers);
         }
     }
 }

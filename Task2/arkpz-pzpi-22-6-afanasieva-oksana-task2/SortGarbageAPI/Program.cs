@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SortGarbageAPI.Models;
-using SortGarbageAPI.Controllers;
+using SortGarbageAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +8,13 @@ builder.Services.AddDbContext<SortGarbageDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
+
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ContainerService>();
+builder.Services.AddScoped<SensorService>();
+builder.Services.AddScoped<SensorDataService>();
+builder.Services.AddScoped<NotificationService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -1,8 +1,12 @@
 namespace SortGarbageAPI.Models
 {
-	public enum UserRole
-	{
-		User = 1,
-		Administrator = 2
-	}
+    #region Enums
+
+    public enum UserRole
+    {
+        User = 1,
+        Administrator = 2
+    }
+
+    #endregion
 }

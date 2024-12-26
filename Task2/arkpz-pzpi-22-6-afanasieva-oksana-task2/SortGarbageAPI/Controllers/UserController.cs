@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SortGarbageAPI.Models;
-using BCrypt.Net;
+using SortGarbageAPI.Services;
 
 namespace SortGarbageAPI.Controllers
 {
@@ -9,40 +8,37 @@ namespace SortGarbageAPI.Controllers
     [Route("/users")]
     public class UserController : ControllerBase
     {
-        private readonly SortGarbageDbContext _dbContext;
+        private readonly UserService _userService;
 
-        public UserController(SortGarbageDbContext dbContext)
+        public UserController(UserService userService)
         {
-            _dbContext = dbContext;
+            _userService = userService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _dbContext.Users.ToListAsync();
+            var users = await _userService.GetAllUsersAsync();
             return Ok(users);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
-            if(await _dbContext.Users.AnyAsync(u => u.Email == user.Email))
+            if (await _userService.EmailExistsAsync(user.Email))
             {
                 return BadRequest("There is already a user with this email");
             }
 
-            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            _dbContext.Users.Add(user);
-            await _dbContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetUserById), new { id = user.UserId }, user);
+            var createdUser = await _userService.CreateUserAsync(user);
+            return CreatedAtAction(nameof(GetUserById), new { id = createdUser.UserId }, createdUser);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _dbContext.Users.FindAsync(id);
-            if(user == null)
+            var user = await _userService.GetUserByIdAsync(id);
+            if (user == null)
             {
                 return NotFound();
             }
@@ -52,35 +48,22 @@ namespace SortGarbageAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedData)
         {
-            var user = await _dbContext.Users.FindAsync(id);
-            if(user == null)
+            var success = await _userService.UpdateUserAsync(id, updatedData);
+            if (!success)
             {
                 return NotFound();
             }
-
-            user.Username = updatedData.Username;
-            user.Address = updatedData.Address;
-            user.Email = updatedData.Email;
-            if (string.IsNullOrEmpty(updatedData.Password))
-            {
-                user.Password = BCrypt.Net.BCrypt.HashPassword(updatedData.Password);
-            }
-            _dbContext.Users.Update(user);
-            await _dbContext.SaveChangesAsync();
             return Ok("User data updated successfully");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _dbContext.Users.FindAsync(id);
-            if(user == null)
+            var success = await _userService.DeleteUserAsync(id);
+            if (!success)
             {
                 return NotFound();
             }
-
-            _dbContext.Users.Remove(user);
-            await _dbContext.SaveChangesAsync();
             return Ok("User data deleted successfully");
         }
     }

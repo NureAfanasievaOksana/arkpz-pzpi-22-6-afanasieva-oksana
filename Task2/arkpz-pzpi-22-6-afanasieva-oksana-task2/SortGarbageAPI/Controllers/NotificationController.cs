@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SortGarbageAPI.Models;
+using SortGarbageAPI.Services;
 
 namespace SortGarbageAPI.Controllers
 {
@@ -8,33 +8,31 @@ namespace SortGarbageAPI.Controllers
     [ApiController]
     public class NotificationController : ControllerBase
     {
-        private readonly SortGarbageDbContext _dbContext;
+        private readonly NotificationService _notificationService;
 
-        public NotificationController(SortGarbageDbContext dbContext)
+        public NotificationController(NotificationService notificationService)
         {
-            _dbContext = dbContext;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetNotifications()
         {
-            var notifications = await _dbContext.Notifications.ToListAsync();
+            var notifications = await _notificationService.GetAllNotificationsAsync();
             return Ok(notifications);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateNotification([FromBody] Notification notification)
         {
-            _dbContext.Notifications.Add(notification);
-            await _dbContext.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetNotificationById), new { id = notification.NotificationId }, notification);
+            var createdNotification = await _notificationService.CreateNotificationAsync(notification);
+            return CreatedAtAction(nameof(GetNotificationById), new { id = createdNotification.NotificationId }, createdNotification);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetNotificationById(int id)
         {
-            var notification = await _dbContext.Notifications.FindAsync(id);
+            var notification = await _notificationService.GetNotificationByIdAsync(id);
             if (notification == null)
             {
                 return NotFound();
@@ -45,29 +43,12 @@ namespace SortGarbageAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNotification(int id)
         {
-            var notification = await _dbContext.Notifications.FindAsync(id);
-            if (notification == null)
+            var success = await _notificationService.DeleteNotificationAsync(id);
+            if (!success)
             {
                 return NotFound();
             }
-
-            _dbContext.Notifications.Remove(notification);
-            await _dbContext.SaveChangesAsync();
             return Ok("Notification deleted successfully");
-        }
-
-        [HttpGet("users/{userId}")]
-        public async Task<IActionResult> GetNotificationsByUserId(int userId)
-        {
-            var notification = await _dbContext.Notifications.Where(n => n.UserId == userId).ToListAsync();
-            return Ok(notification);
-        }
-
-        [HttpGet("date/{date}")]
-        public async Task<IActionResult> GetNotificationsByDate(DateTime date)
-        {
-            var notifications = await _dbContext.Notifications.Where(n => n.Timestamp.Date == date.Date).ToListAsync();
-            return Ok(notifications);
         }
     }
 }
