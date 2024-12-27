@@ -34,6 +34,7 @@ builder.Services.AddScoped<SensorService>();
 builder.Services.AddScoped<SensorDataService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<AuthorizationService>();
+builder.Services.AddScoped<EmailService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

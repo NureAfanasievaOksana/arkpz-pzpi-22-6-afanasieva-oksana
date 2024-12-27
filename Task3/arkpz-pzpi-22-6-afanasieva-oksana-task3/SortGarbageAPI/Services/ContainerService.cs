@@ -67,6 +67,7 @@ namespace SortGarbageAPI.Services
             container.Address = updatedData.Address;
             container.Type = updatedData.Type;
             container.MaxSize = updatedData.MaxSize;
+            container.UserId = updatedData.UserId;
             _dbContext.Containers.Update(container);
             await _dbContext.SaveChangesAsync();
             return true;

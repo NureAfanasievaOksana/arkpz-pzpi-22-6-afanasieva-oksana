@@ -64,7 +64,6 @@ namespace SortGarbageAPI.Services
                 return false;
             }
 
-            sensor.Type = updatedData.Type;
             _dbContext.Sensors.Update(sensor);
             await _dbContext.SaveChangesAsync();
             return true;

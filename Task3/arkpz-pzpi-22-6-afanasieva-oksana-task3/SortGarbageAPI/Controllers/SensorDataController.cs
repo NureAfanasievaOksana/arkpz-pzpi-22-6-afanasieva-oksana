@@ -41,7 +41,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="sensorData">The sensor data to create</param>
         /// <returns>The created sensor data</returns>
         [HttpPost]
-        [Authorize(Roles = "2, 3")]
+        //[Authorize(Roles = "2, 3")]
         public async Task<IActionResult> CreateSensorData([FromBody] SensorData sensorData)
         {
             var createdSensorData = await _sensorDataService.CreateSensorDataAsync(sensorData);

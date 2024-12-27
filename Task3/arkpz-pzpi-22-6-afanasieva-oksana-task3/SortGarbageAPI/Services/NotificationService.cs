@@ -9,14 +9,16 @@ namespace SortGarbageAPI.Services
     public class NotificationService
     {
         private readonly SortGarbageDbContext _dbContext;
+        private readonly EmailService _emailService;
 
         /// <summary>
         /// Initializes a new instance of the NotificationService
         /// </summary>
         /// <param name="dbContext">Database context for notification operations</param>
-        public NotificationService(SortGarbageDbContext dbContext)
+        public NotificationService(SortGarbageDbContext dbContext, EmailService emailService)
         {
             _dbContext = dbContext;
+            _emailService = emailService;
         }
 
         /// <summary>
@@ -35,6 +37,15 @@ namespace SortGarbageAPI.Services
         /// <returns>The created notification with assigned id</returns>
         public async Task<Notification> CreateNotificationAsync(Notification notification)
         {
+            var user = await _dbContext.Users.FindAsync(notification.UserId);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+
+            await _emailService.SendEmailAsync(user.Email, notification.Subject, notification.Message);
+
+            notification.Timestamp = DateTime.UtcNow;
             _dbContext.Notifications.Add(notification);
             await _dbContext.SaveChangesAsync();
             return notification;

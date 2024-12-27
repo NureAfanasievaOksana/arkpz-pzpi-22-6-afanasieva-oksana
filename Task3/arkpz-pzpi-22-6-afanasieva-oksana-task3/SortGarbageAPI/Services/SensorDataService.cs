@@ -9,14 +9,22 @@ namespace SortGarbageAPI.Services
     public class SensorDataService
     {
         private readonly SortGarbageDbContext _dbContext;
+        private readonly NotificationService _notificationService;
+        private readonly float _criticalFullnessThreshold;
+        private readonly float _highTemperatureThreshold;
+        private readonly float _highHumidityThreshold;
 
         /// <summary>
         /// Initializes a new instance of the SensorDataService
         /// </summary>
         /// <param name="dbContext">Database context for sensor data operations</param>
-        public SensorDataService(SortGarbageDbContext dbContext)
+        public SensorDataService(SortGarbageDbContext dbContext, NotificationService notificationService, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _notificationService = notificationService;
+            _criticalFullnessThreshold = configuration.GetValue<float>("SensorSettings:CriticalFullnessThreshold");
+            _highTemperatureThreshold = configuration.GetValue<float>("SensorSettings:HighTemperatureThreshold");
+            _highHumidityThreshold = configuration.GetValue<float>("SensorSettings:HighHumidityThreshold");
         }
 
         /// <summary>
@@ -35,9 +43,65 @@ namespace SortGarbageAPI.Services
         /// <returns>The created sensor data with assigned id</returns>
         public async Task<SensorData> CreateSensorDataAsync(SensorData sensorData)
         {
+            float maxAbsoluteHumidity = calculateMaxAbsoluteHumidity(sensorData.Temperature);
+            float humidity = (sensorData.Wetness / maxAbsoluteHumidity) * 100;
+            sensorData.Wetness = humidity;
+
+            var sensor = await _dbContext.Sensors.Include(s => s.Container).ThenInclude(c => c.User)
+                .FirstOrDefaultAsync(s => s.SensorId == sensorData.SensorId);
+            if (sensor == null)
+            {
+                throw new Exception("Sensor not found");
+            }
+            var container = sensor.Container;
+
+            if (sensorData.Fullness >= _criticalFullnessThreshold)
+            {
+                var notification = new Notification
+                {
+                    UserId = (int)container.UserId,
+                    Subject = "Critical container alert",
+                    Message = $"Container {container.ContainerId} is critically full with a level of {sensorData.Fullness}%.",
+                    SensorDataId = sensorData.SensorId,
+                };
+                await _notificationService.CreateNotificationAsync(notification);
+            }
+
+            if (sensorData.Temperature >= _highTemperatureThreshold)
+            {
+                var notification = new Notification
+                {
+                    UserId = (int)container.UserId,
+                    Subject = "High Temperature Alert",
+                    Message = $"Temperature in container {container.ContainerId} is too high, it is equal to {sensorData.Temperature}°C.",
+                    SensorDataId = sensorData.SensorId,
+                };
+                await _notificationService.CreateNotificationAsync(notification);
+            }
+
+            if (sensorData.Wetness >= _highHumidityThreshold)
+            {
+                var notification = new Notification
+                {
+                    UserId = (int)container.UserId,
+                    Subject = "High Humidity Alert",
+                    Message = $"Relative humidity in container {container.ContainerId} is too high, it is equal to {sensorData.Wetness}%.",
+                    SensorDataId = sensorData.SensorId,
+                };
+                await _notificationService.CreateNotificationAsync(notification);
+            }
+
             _dbContext.SensorData.Add(sensorData);
             await _dbContext.SaveChangesAsync();
             return sensorData;
+        }
+
+        private float calculateMaxAbsoluteHumidity(float temperature)
+        {
+            double exponent = (17.67 * temperature) / (temperature + 243.5);
+            double numerator = 6.112 * Math.Exp(exponent) * 216.7;
+            double maxAbsoluteHumidity = numerator / (temperature + 273.15);
+            return (float)maxAbsoluteHumidity;
         }
 
         /// <summary>
@@ -59,8 +123,8 @@ namespace SortGarbageAPI.Services
         {
             var sensorData = await _dbContext.SensorData.FindAsync(id);
             if (sensorData == null)
-            { 
-                return false; 
+            {
+                return false;
             }
 
             _dbContext.SensorData.Remove(sensorData);
