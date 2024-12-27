@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SortGarbageAPI.Models;
 using SortGarbageAPI.Services;
 
@@ -27,6 +28,7 @@ namespace SortGarbageAPI.Controllers
         /// </summary>
         /// <returns>A collection of all sensors</returns>
         [HttpGet]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetSensors()
         {
             var sensors = await _sensorService.GetAllSensorsAsync();
@@ -39,6 +41,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="sensor">The sensor data to create</param>
         /// <returns>The created sensor data</returns>
         [HttpPost]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> CreateSensor([FromBody] Sensor sensor)
         {
             var createdSensor = await _sensorService.CreateSensorAsync(sensor);
@@ -51,6 +54,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The ID of the sensor to retrieve</param>
         /// <returns>The requested sensor data</returns>
         [HttpGet("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetSensorById(int id)
         {
             var sensor = await _sensorService.GetSensorByIdAsync(id);
@@ -68,6 +72,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="updatedData">The updated sensor data</param>
         /// <returns>A success message if the update was successful</returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> UpdateSensor(int id, [FromBody] Sensor updatedData)
         {
             if (!await _sensorService.UpdateSensorAsync(id, updatedData))
@@ -83,6 +88,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the sensor to delete</param>
         /// <returns>A success message if the deletion was successful</returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> DeleteSensor(int id)
         {
             if (!await _sensorService.DeleteSensorAsync(id))

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SortGarbageAPI.Models;
 using SortGarbageAPI.Services;
 
@@ -27,6 +28,7 @@ namespace SortGarbageAPI.Controllers
         /// </summary>
         /// <returns>A collection of all users</returns>
         [HttpGet]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> GetUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -39,6 +41,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="user">The user data to create</param>
         /// <returns>The created user data</returns>
         [HttpPost]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> CreateUser([FromBody] User user)
         {
             if (await _userService.EmailExistsAsync(user.Email))
@@ -56,6 +59,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the user to retrieve</param>
         /// <returns>The requested user data</returns>
         [HttpGet("{id}")]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -73,6 +77,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="updatedData">The updated user data</param>
         /// <returns>A success message if the update was successful</returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "1, 2")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedData)
         {
             if (!await _userService.UpdateUserAsync(id, updatedData))
@@ -88,6 +93,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the user to delete</param>
         /// <returns>A success message if the deletion was successful</returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             if (!await _userService.DeleteUserAsync(id))

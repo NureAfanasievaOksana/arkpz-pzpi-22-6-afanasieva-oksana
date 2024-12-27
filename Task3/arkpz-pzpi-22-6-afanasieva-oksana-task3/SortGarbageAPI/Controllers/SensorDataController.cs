@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SortGarbageAPI.Models;
 using SortGarbageAPI.Services;
 
@@ -27,6 +28,7 @@ namespace SortGarbageAPI.Controllers
         /// </summary>
         /// <returns>A collection of all sensor data</returns>
         [HttpGet]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetSensorData()
         {
             var sensorData = await _sensorDataService.GetAllSensorDataAsync();
@@ -39,6 +41,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="sensorData">The sensor data to create</param>
         /// <returns>The created sensor data</returns>
         [HttpPost]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> CreateSensorData([FromBody] SensorData sensorData)
         {
             var createdSensorData = await _sensorDataService.CreateSensorDataAsync(sensorData);
@@ -51,6 +54,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the sensor data to retrieve</param>
         /// <returns>The requested sensor data</returns>
         [HttpGet("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetSensorDataById(int id)
         {
             var sensorData = await _sensorDataService.GetSensorDataByIdAsync(id);
@@ -67,6 +71,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the sensor data to delete</param>
         /// <returns>A success message if the deletion was successful</returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> DeleteSensorData(int id)
         {
             if (!await _sensorDataService.DeleteSensorDataAsync(id))
@@ -82,6 +87,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="sensorId">The id of the sensor to retrieve data for.</param>
         /// <returns>A collection of sensor data for the specified sensor.</returns>
         [HttpGet("sensor/{sensorId}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetSensorDataBySensorId(int sensorId)
         {
             var sensorData = await _sensorDataService.GetSensorDataBySensorIdAsync(sensorId);
@@ -94,6 +100,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="date">The date to retrieve sensor data for.</param>
         /// <returns>A collection of sensor data for the specified date.</returns>
         [HttpGet("date/{date}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetSensorDataByDate(DateTime date)
         {
             var sensorData = await _sensorDataService.GetSensorDataByDateAsync(date);

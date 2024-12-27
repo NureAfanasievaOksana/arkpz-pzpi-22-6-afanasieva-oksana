@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SortGarbageAPI.Models;
 using SortGarbageAPI.Services;
 
@@ -27,6 +28,7 @@ namespace SortGarbageAPI.Controllers
         /// </summary>
         /// <returns>A collection of all notifications</returns>
         [HttpGet]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetNotifications()
         {
             var notifications = await _notificationService.GetAllNotificationsAsync();
@@ -39,6 +41,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="notification">The notification data to create</param>
         /// <returns>The created notification data</returns>
         [HttpPost]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> CreateNotification([FromBody] Notification notification)
         {
             var createdNotification = await _notificationService.CreateNotificationAsync(notification);
@@ -51,6 +54,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the notification to retrieve</param>
         /// <returns>The requested notification data</returns>
         [HttpGet("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetNotificationById(int id)
         {
             var notification = await _notificationService.GetNotificationByIdAsync(id);
@@ -67,6 +71,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the notification to delete</param>
         /// <returns>A success message if the deletion was successful</returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> DeleteNotification(int id)
         {
             if (!await _notificationService.DeleteNotificationAsync(id))
@@ -82,6 +87,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="userId">The id of the user to retrieve notifications for</param>
         /// <returns>A collection of notifications for the specified user</returns>
         [HttpGet("users/{userId}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetNotificationsByUserId(int userId)
         {
             var notifications = await _notificationService.GetNotificationsByUserIdAsync(userId);
@@ -94,6 +100,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="date">The date to retrieve notifications for</param>
         /// <returns>A collection of notifications for the specified date</returns>
         [HttpGet("date/{date}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetNotificationsByDate(DateTime date)
         {
             var notifications = await _notificationService.GetNotificationsByDateAsync(date);

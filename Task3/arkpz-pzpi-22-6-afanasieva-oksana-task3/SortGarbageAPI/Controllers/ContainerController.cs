@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SortGarbageAPI.Models;
 using SortGarbageAPI.Services;
 
@@ -27,6 +28,7 @@ namespace SortGarbageAPI.Controllers
         /// </summary>
         /// <returns>A collection of all containers</returns>
         [HttpGet]
+        [Authorize(Roles = "1, 2, 3")]
         public async Task<IActionResult> GetContainers()
         {
             var containers = await _containerService.GetAllContainersAsync();
@@ -39,6 +41,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="container">The container data to create</param>
         /// <returns>The created container data</returns>
         [HttpPost]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> CreateContainer([FromBody] Container container)
         {
             var createdContainer = await _containerService.CreateContainerAsync(container);
@@ -51,6 +54,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the container to retrieve</param>
         /// <returns>The requested container data</returns>
         [HttpGet("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> GetContainerById(int id)
         {
             var container = await _containerService.GetContainerByIdAsync(id);
@@ -68,6 +72,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="updatedData">The updated container data</param>
         /// <returns>A success message if the update was successful</returns>
         [HttpPut("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> UpdateContainer(int id, [FromBody] Container updatedData)
         {
             if (!await _containerService.UpdateContainerAsync(id, updatedData))
@@ -83,6 +88,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="id">The id of the container to delete</param>
         /// <returns>A success message if the deletion was successful</returns>
         [HttpDelete("{id}")]
+        [Authorize(Roles = "2, 3")]
         public async Task<IActionResult> DeleteContainer(int id)
         {
             if (!await _containerService.DeleteContainerAsync(id))
@@ -98,6 +104,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="type">The type of containers to retrieve</param>
         /// <returns>A collection of containers of the specified type</returns>
         [HttpGet("type/{type}")]
+        [Authorize(Roles = "1, 2, 3")]
         public async Task<IActionResult> GetContainersByType(string type)
         {
             if (!Enum.TryParse<ContainerType>(type, true, out var containerType))
@@ -114,6 +121,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="address">The address to retrieve containers for</param>
         /// <returns>A collection of containers at the specified address</returns>
         [HttpGet("address/{address}")]
+        [Authorize(Roles = "1, 2, 3")]
         public async Task<IActionResult> GetContainersByAddress(string address)
         {
             var containers = await _containerService.GetContainersByAddressAsync(address);
