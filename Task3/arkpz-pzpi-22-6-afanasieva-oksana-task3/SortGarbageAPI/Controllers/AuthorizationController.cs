@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 namespace SortGarbageAPI.Controllers
 {
     /// <summary>
-    /// 
+    /// Controller handling user authentication and authorization
     /// </summary>
     [ApiController]
     [Route("/auth")]
@@ -18,15 +18,21 @@ namespace SortGarbageAPI.Controllers
         private readonly SortGarbageDbContext _dbContext;
 
         /// <summary>
-        /// 
+        /// Constructor for AuthorizationController
         /// </summary>
-        /// <param name="userService"> </param>
+        /// <param name="dbContext">Database context for user data access</param>
+        /// <param name="authorizationService">Service for authorization operations</param>
         public AuthorizationController(SortGarbageDbContext dbContext, AuthorizationService authorizationService)
         {
             _dbContext = dbContext;
             _authorizationService = authorizationService;
         }
 
+        /// <summary>
+        /// Handles user login and generates authentication token
+        /// </summary>
+        /// <param name="loginData">User login credentials</param>
+        /// <returns>JWT token if authentication successful, unauthorized response if failed</returns>
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginData loginData)
         {
@@ -41,6 +47,9 @@ namespace SortGarbageAPI.Controllers
         }
     }
 
+    /// <summary>
+    /// Data transfer object for login credentials
+    /// </summary>
     public class LoginData
     {
         [EmailAddress]

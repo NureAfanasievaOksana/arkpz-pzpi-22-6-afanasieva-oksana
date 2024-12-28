@@ -15,19 +15,19 @@ namespace SortGarbageAPI.Services
         /// <summary>
         /// Initializes a new instance of the EmailService
         /// </summary>
-        /// <param name="configuration">Application configuration</param>
+        /// <param name="configuration">Application configuration containing email settings</param>
         public EmailService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
         /// <summary>
-        /// Sends an email asynchronously
+        /// Sends an email asynchronously using SMTP
         /// </summary>
         /// <param name="toEmail">Recipient's email address</param>
-        /// <param name="subject">Email subject</param>
-        /// <param name="body">Email body</param>
-        /// <returns>A Task representing the asynchronous operation</returns>
+        /// <param name="subject">Subject line of the email</param>
+        /// <param name="body">Content of the email message</param>
+        /// <returns>A Task representing the asynchronous email sending operation</returns>
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             var smtpHost = _configuration["Email:Host"];

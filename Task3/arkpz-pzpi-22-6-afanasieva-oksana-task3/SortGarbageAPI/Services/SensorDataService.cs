@@ -18,6 +18,8 @@ namespace SortGarbageAPI.Services
         /// Initializes a new instance of the SensorDataService
         /// </summary>
         /// <param name="dbContext">Database context for sensor data operations</param>
+        /// <param name="notificationService">Service for sending alerts when thresholds are exceeded</param>
+        /// <param name="configuration">Configuration containing sensor threshold settings</param>
         public SensorDataService(SortGarbageDbContext dbContext, NotificationService notificationService, IConfiguration configuration)
         {
             _dbContext = dbContext;
@@ -37,7 +39,7 @@ namespace SortGarbageAPI.Services
         }
 
         /// <summary>
-        /// Creates a new sensor data record in the database
+        /// Creates a new sensor data record and checks for threshold violations
         /// </summary>
         /// <param name="sensorData">The sensor data to create</param>
         /// <returns>The created sensor data with assigned id</returns>
@@ -96,6 +98,11 @@ namespace SortGarbageAPI.Services
             return sensorData;
         }
 
+        /// <summary>
+        /// Calculates the maximum absolute humidity possible at a given temperature
+        /// </summary>
+        /// <param name="temperature">Temperature in Celsius</param>
+        /// <returns>Maximum absolute humidity in g/m^3</returns>
         private float calculateMaxAbsoluteHumidity(float temperature)
         {
             double exponent = (17.67 * temperature) / (temperature + 243.5);

@@ -5,15 +5,27 @@ using System.Threading.Tasks;
 
 namespace SortGarbageAPI.Services
 {
+    /// <summary>
+    /// Service class for managing database operations
+    /// </summary>
     public class DatabaseService
     {
         private readonly IConfiguration _configuration;
-        private readonly string _dbConnection;
-        private readonly string _databaseName;
+
+        /// <summary>
+        /// Constructor for DatabaseService
+        /// </summary>
+        /// <param name="configuration">Application configuration containing database settings</param>
         public DatabaseService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
+
+        /// <summary>
+        /// Creates a backup of the database
+        /// </summary>
+        /// <param name="backupFolderPath">Directory where backup will be stored</param>
+        /// <returns>Task representing the backup operation</returns>
         public async Task BackupDatabaseAsync(string backupFolderPath)
         {
             if (string.IsNullOrEmpty(backupFolderPath) || !Directory.Exists(backupFolderPath))
@@ -38,6 +50,11 @@ namespace SortGarbageAPI.Services
             await command.ExecuteNonQueryAsync();
         }
 
+        /// <summary>
+        /// Restores the database from a backup file
+        /// </summary>
+        /// <param name="backupFilePath">Path to the backup file</param>
+        /// <returns>Task representing the restore operation</returns>
         public async Task RestoreDatabaseAsync(string backupFilePath)
         {
             var connectionString = _configuration.GetConnectionString("DefaultConnection");

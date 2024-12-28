@@ -6,15 +6,28 @@ using SortGarbageAPI.Models;
 
 namespace SortGarbageAPI.Services
 {
+    /// <summary>
+    /// Service responsible for handling JWT token generation and authorization
+    /// </summary>
     public class AuthorizationService
     {
         private readonly IConfiguration _configuration;
 
+        /// <summary>
+        /// Initializes a new instance of the AuthorizationService
+        /// </summary>
+        /// <param name="configuration">Application configuration containing JWT settings</param>
         public AuthorizationService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Generates a JWT token for user authentication
+        /// </summary>
+        /// <param name="userId">The unique id of the user</param>
+        /// <param name="role">The role assigned to the user</param>
+        /// <returns>JWT token string that can be used for authentication</returns>
         public string GenerateToken(int userId, UserRole role)
         {
             var claims = new[]
