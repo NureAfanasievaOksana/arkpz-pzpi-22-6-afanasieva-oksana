@@ -77,7 +77,7 @@ namespace SortGarbageAPI.Controllers
         /// <param name="updatedData">The updated user data</param>
         /// <returns>A success message if the update was successful</returns>
         [HttpPut("{id}")]
-        [Authorize(Roles = "1, 2")]
+        [Authorize(Roles = "2")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] User updatedData)
         {
             if (!await _userService.UpdateUserAsync(id, updatedData))
