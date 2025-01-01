@@ -1,1 +1,179 @@
+Міністерство освіти і науки України
+Харківський національний  університет радіоелектроніки
 
+
+Кафедра «Програмної інженерії»
+
+
+ЗВІТ
+з лабораторної роботи №4
+з дисципліни «Аналіз та рефакторинг коду»
+на тему: «Розробка IoT клієнта  (бізнес-логіки та функцій налаштування)»
+
+
+
+Виконала:	            Перевірив:
+ст. гр. ПЗПІ-22-6	    ст. викладач
+Афанасьєва О.М.	      Сокорчук І. П.
+
+
+
+
+Харків 2024
+4 РОЗРОБКА IoT КЛІЄНТА (БІЗНЕС-ЛОГІКИ ТА ФУНКЦІЙ НАЛАШТУВАННЯ)
+4.1	 Мета роботи
+Розробити програмне забезпечення для  IoT або SmartDevice пристрою, створеного на базі будь-якої поширеної на  сьогодні платформи, придатної для реалізації вбудованих систем.
+4.2	 Хід роботи
+4.2.1 Розробити будову програмного забезпечення ІоТ клієнта
+Програмне забезпечення IoT-клієнта було розроблено з використанням бібліотек для роботи з мережевими протоколами та сенсорами. IoT-клієнт відповідає за моніторинг контейнерів, збір даних та їх передачу на сервер.
+Через HTTP-запит отримується список сенсорів та генеруються дані про стан контейнерів. Дані сенсорів про рівень заповнення конвертуються у стандартизоване значення та надсилаються на сервер через MQTT протокол.
+
+4.2.2 Створити UML діаграму прецедентів для ІоТ клієнта
+ 
+Рисунок 1 – UML-діаграма прецедентів для IoT-клієнта
+
+4.2.3 Розробити бізнес логіку (математичну обробку пов’язаних із предметною областю даних) та функції налаштування ІоТ клієнта
+У бізнес-логіці IoT-клієнта реалізовано зчитування необроблених даних з сенсорів, такі як рівень заповнення контейнера, та їх нормалізація. Для цього використовується формула (заповнений об’єм / максимальний об’єм) × 100%.
+IoT-клієнт також дозволяє налаштовувати MQTT-конфігурації, де налаштовуються адреса брокера, теми для публікації та ідентифікатор клієнта. Також можна налаштовувати частоту передачі даних на сервер.
+
+4.2.4 Створити діаграму діяльності для ІоТ клієнта
+ 
+Рисунок 2 – UML-діаграма діяльності для IoT-клієнта
+
+4.2.5 Створити програмну реалізацію бізнес логіки та функцій налаштування ІоТ клієнта
+Фрагменти коду з реалізацією бізнес-логіки IoT-клієнта та налаштування IoT-клієнта наведено у додатку А.
+
+4.3	Висновок
+Під час виконання лабораторної роботи було розроблено програмне забезпечення для  IoT.
+4.4	 Посилання
+Посилання на GitHub репозиторій:
+https://github.com/NureAfanasievaOksana/arkpz-pzpi-22-6-afanasieva-oksana/tree/main/Task4
+Посилання на YouTube відео з виступом:
+
+ 
+ДОДАТОК А
+Фрагмент коду реалізації бізнес-логіки IoT-клієнта
+
+1. namespace IoTSortGarbage.Services
+2. {
+3.     public class SensorDataService
+4.     {
+5.         private readonly HttpClient _httpClient;
+6.         private static Random _random = new Random();
+7. 
+8.         public SensorDataService(HttpClient httpClient)
+9.         {
+10.             _httpClient = httpClient;
+11.         }
+12. 
+13.         public static float GenerateFillLevel(float maxSize)
+14.         {
+15.             return (float)Math.Round((float)_random.NextDouble() * maxSize, 2);
+16.         }
+17.         public static float GenerateTemperature()
+18.         {
+19.             return (float)Math.Round((float)_random.NextDouble() * 80 - 20, 2);
+20.         }
+21.         public static float GenerateHumidity()
+22.         {
+23.             return (float)Math.Round((float)_random.NextDouble() * 30, 2);
+24.         }
+25. 
+26.         public static object ProcessSensorData(int sensorId, float maxSize)
+27.         {
+28.             if (maxSize <= 0)
+29.             {
+30.                 throw new ArgumentException("Max volume must be greater than zero.");
+31.             }
+32. 
+33.             float filledVolume = GenerateFillLevel(maxSize);
+34.             float temperature = GenerateTemperature();
+35.             float humidity = GenerateHumidity();
+36.             float fullness = (filledVolume / maxSize) * 100;
+37. 
+38.             return new
+39.             {
+40.                 Timestamp = DateTime.UtcNow,
+41.                 Fullness = fullness,
+42.                 Temperature = temperature,
+43.                 Wetness = humidity,
+44.                 SensorId = sensorId
+45.             };
+46.         }
+47. 
+48.         public async Task SaveSensorDataAsync(object sensorData)
+49.         {
+50.             var json = JsonSerializer.Serialize(sensorData);
+51.             var content = new StringContent(json, Encoding.UTF8, "application/json");
+52.             var response = await _httpClient.PostAsync("/sensorData", content);
+53.             response.EnsureSuccessStatusCode();
+54.         }
+55.     }
+56. }
+
+1. using System;
+2. using System.Collections.Generic;
+3. using System.Linq;
+4. using System.Text;
+5. using System.Threading.Tasks;
+6. using Microsoft.Extensions.Configuration;
+7. using MQTTnet;
+8. using MQTTnet.Client;
+9. 
+10. namespace IoTSortGarbage.Services
+11. {
+12.     public class MqttService
+13.     {
+14.         private readonly IMqttClient _mqttClient;
+15.         private readonly string _brokerAddress;
+16.         private readonly int _brokerPort;
+17.         private readonly string _sensorData;
+18. 
+19.         public MqttService(IConfiguration configuration)
+20.         {
+21.             var factory = new MqttFactory();
+22.             _mqttClient = factory.CreateMqttClient();
+23. 
+24.             var mqttSettings = configuration.GetSection("MqttSettings");
+25.             _brokerAddress = mqttSettings["Broker"];
+26.             _brokerPort = int.Parse(mqttSettings["Port"]);
+27.             _sensorData = mqttSettings["SensorData"];
+28.         }
+29. 
+30.         public async Task ConnectAsync()
+31.         {
+32.             if (!_mqttClient.IsConnected)
+33.             {
+34.                 var mqttOptions = new MqttClientOptionsBuilder().WithTcpServer(_brokerAddress, _brokerPort).Build();
+35.                 await _mqttClient.ConnectAsync(mqttOptions);
+36.                 Console.WriteLine("Connected to MQTT broker.");
+37.             }
+38.         }
+39. 
+40.         public async Task PublishAsync(object sensorData)
+41.         {
+42.             if (!_mqttClient.IsConnected)
+43.             {
+44.                 await ConnectAsync();
+45.             }
+46.             var jsonPayload = System.Text.Json.JsonSerializer.Serialize(sensorData);
+47. 
+48.             var message = new MqttApplicationMessageBuilder()
+49.                 .WithTopic(_sensorData)
+50.                 .WithPayload(jsonPayload)
+51.                 .WithQualityOfServiceLevel(MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce)
+52.                 .Build();
+53. 
+54.             await _mqttClient.PublishAsync(message);
+55.         }
+56. 
+57.         public async Task DisconnectAsync()
+58.         {
+59.             if (_mqttClient.IsConnected)
+60.             {
+61.                 await _mqttClient.DisconnectAsync();
+62.             }
+63.             Console.WriteLine("Disconnected from MQTT broker.");
+64.         }
+65.     }
+66. }
