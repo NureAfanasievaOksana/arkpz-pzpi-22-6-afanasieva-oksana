@@ -8,14 +8,28 @@ using System.Threading.Tasks;
 
 namespace IoTSortGarbage.Services
 {
+    /// <summary>
+    /// Service for handling authentication with the API
+    /// </summary>
     public class AuthService
     {
         private readonly HttpClient _httpClient;
+
+        /// <summary>
+        /// Initializes a new instance of the AuthService class
+        /// </summary>
+        /// <param name="httpClient">The HTTP client for making API requests</param>
         public AuthService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
+        /// <summary>
+        /// Retrieves a JWT token by authenticating with email and password
+        /// </summary>
+        /// <param name="email">The user's email</param>
+        /// <param name="password">The user's password</param>
+        /// <returns>The JWT token string</returns>
         public async Task<string> GetJwtTokenAsync(string email, string password)
         {
             var content = new StringContent(JsonSerializer.Serialize(new { Email = email, Password = password }), Encoding.UTF8, "application/json");
@@ -38,6 +52,5 @@ namespace IoTSortGarbage.Services
                 throw new Exception("Failed to retrieve JWT token", ex);
             }
         }
-
     }
 }

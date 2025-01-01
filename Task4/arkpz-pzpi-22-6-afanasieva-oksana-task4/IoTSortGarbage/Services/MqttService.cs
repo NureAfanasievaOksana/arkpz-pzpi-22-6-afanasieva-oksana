@@ -9,6 +9,9 @@ using MQTTnet.Client;
 
 namespace IoTSortGarbage.Services
 {
+    /// <summary>
+    /// Service for handling MQTT communication
+    /// </summary>
     public class MqttService
     {
         private readonly IMqttClient _mqttClient;
@@ -16,6 +19,10 @@ namespace IoTSortGarbage.Services
         private readonly int _brokerPort;
         private readonly string _sensorData;
 
+        /// <summary>
+        /// Initializes a new instance of the MqttService class
+        /// </summary>
+        /// <param name="configuration">The configuration containing MQTT settings</param>
         public MqttService(IConfiguration configuration)
         {
             var factory = new MqttFactory();
@@ -27,6 +34,10 @@ namespace IoTSortGarbage.Services
             _sensorData = mqttSettings["SensorData"];
         }
 
+        /// <summary>
+        /// Establishes connection to the MQTT broker
+        /// </summary>
+        /// <returns>A task that represents the asynchronous connection operation</returns>
         public async Task ConnectAsync()
         {
             if (!_mqttClient.IsConnected)
@@ -37,6 +48,11 @@ namespace IoTSortGarbage.Services
             }
         }
 
+        /// <summary>
+        /// Publishes sensor data to the MQTT broker
+        /// </summary>
+        /// <param name="sensorData">The sensor data to publish</param>
+        /// <returns>A task that represents the asynchronous publish operation</returns>
         public async Task PublishAsync(object sensorData)
         {
             if (!_mqttClient.IsConnected)
@@ -54,6 +70,10 @@ namespace IoTSortGarbage.Services
             await _mqttClient.PublishAsync(message);
         }
 
+        /// <summary>
+        /// Disconnects from the MQTT broker
+        /// </summary>
+        /// <returns>A task that represents the asynchronous disconnection operation</returns>
         public async Task DisconnectAsync()
         {
             if (_mqttClient.IsConnected)
